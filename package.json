@@ -5,7 +5,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ingest": "tsc | node ./dist/ingest.js",
+    "start": "tsc | node ./dist/index.js"
   },
   "author": "Manole Adrian",
   "license": "ISC",
