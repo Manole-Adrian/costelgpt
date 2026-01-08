@@ -1,1 +1,0 @@
-{"version":3,"file":"ollamaGenAiModel.d.ts","sourceRoot":"","sources":["../../../rag/llm/ollamaGenAiModel.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,UAAU,EAAE,WAAW,EAAE,MAAM,oBAAoB,CAAC;AAElE,MAAM,CAAC,OAAO,OAAO,gBAAiB,YAAW,UAAU;IACvD,OAAO,CAAC,SAAS,CAAC;;IAKZ,gBAAgB,CAAC,MAAM,EAAE,MAAM,GAAG,OAAO,CAAC,WAAW,CAAC;CAU/D"}

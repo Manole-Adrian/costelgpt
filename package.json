@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "ingest": "tsc | node ./dist/ingest.js",
+    "ingest": "tsc | node ./dist/ingest.js --all",
     "start": "tsc | node ./dist/index.js"
   },
   "author": "Manole Adrian",
