@@ -66,4 +66,4 @@ package-lock.json
 /lib/
 /dist/
 .env
-*.env
+*.env*
