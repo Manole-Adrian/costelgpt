@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { getAllWikiPages, getPageContent, getPageContentBySearch } from "./services/wikiGraphQL.js";
+import { fetchPageText } from "./services/scraper.js";
 import { chunkText } from "./services/chunker.js";
 import { embedText } from "./services/embeddings.js";
 import { ensureCollection, client as qdrant } from "./services/qdrant.js";
@@ -20,9 +21,11 @@ function debugVector(vector:any[], chunkIndex: number) {
 }
 
 async function ingestFromMarkdown(folderPath = "./sources") {
-  console.log(`📂 Ingesting markdown files from: ${folderPath}`);
+  // If running from dist, we need to go up one level to find sources
+  const rootDir = path.resolve(__dirname, '..');
+  const fullPath = path.join(rootDir, "sources");
   
-  const fullPath = path.join(__dirname, folderPath);
+  console.log(`📂 Ingesting markdown files from: ${fullPath}`);
   
   if (!fs.existsSync(fullPath)) {
     console.error(`❌ Folder not found: ${fullPath}`);
@@ -128,9 +131,22 @@ async function ingest() {
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);
     
-    const content = await getPageContent(page.path, page.locale || "en", page.id);
+    let content = await getPageContent(page.path, page.locale || "en", page.id);
+    
     if (!content) {
-      console.log(`   ⚠️ No content, skipping`);
+      console.log(`   ⚠️ GraphQL content empty. Attempting fallback scraper for path: ${page.path}...`);
+      try {
+        content = await fetchPageText(page.path);
+        if (content) {
+          console.log(`   ✅ Scraped ${content.length} characters successfully.`);
+        }
+      } catch (error: any) {
+        console.error(`   ❌ Scraper failed: ${error.message}`);
+      }
+    }
+
+    if (!content) {
+      console.log(`   ⚠️ No content found via GraphQL or Scraper, skipping`);
       continue;
     }
 
