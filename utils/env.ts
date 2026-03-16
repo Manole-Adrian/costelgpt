@@ -4,24 +4,26 @@ dotenv.config({ path: '../.env'})
 
 type environmentArgs = {
     wikiUrl: string,
-    wikiJSToken: string,
+    wikiJSToken: string | undefined,
     geminiApiKey: string | undefined,
-    qdrantUrl: string,
+    qdrantUrl: string | undefined,
     wikiBaseUrl: string,
     qdrantApiKey: string | undefined,
     qdrantClusterEndpoint: string | undefined,
-    port: number,
-    genModel: 'google' | 'ollama'
+    port: string,
+    genModel: string,
+    wikiCookie: string | undefined
 }
 
-export const environment = {
-    wikiUrl: process.env.WIKI_URL,
+export const environment : environmentArgs = {
+    wikiUrl: process.env.WIKI_URL || "https://wiki.eestec.ro/graphql",
     wikiJSToken: process.env.WIKIJSTOKEN,
     geminiApiKey: process.env.GEMINI_API_KEY,
     qdrantUrl: process.env.QDRANT_URL,
-    wikiBaseUrl: process.env.WIKI_BASE_URL,
+    wikiBaseUrl: process.env.WIKI_BASE_URL || "https://wiki.eestec.ro/",
     qdrantApiKey: process.env.QDRANT_API_KEY,
     qdrantClusterEndpoint: process.env.QDRANT_CLUSTER_ENDPOINT,
-    port: process.env.BACKEND_PORT || 3000,
-    genModel: process.env.GEN_MODEL || 'google'
+    port: process.env.BACKEND_PORT || "3000",
+    genModel: process.env.GEN_MODEL || 'google',
+    wikiCookie: process.env.WIKI_COOKIE
 }

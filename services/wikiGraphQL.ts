@@ -27,12 +27,11 @@ export async function getAllWikiPages() {
   const query = `
     query AllPages {
       pages {
-        search(query: "") {
-          results {
-            id
-            title
-            path
-            locale
+         list {
+          id
+          title
+          path
+          locale
           }
         }
       }
