@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { getAllWikiPages, getPageContent, getPageContentBySearch } from "./services/wikiGraphQL.js";
-import { chunkText } from "./services/chunker.js";
+import { getAllWikiPages, getPageContent } from "./services/wikiGraphQL.js";
+import { chunkText } from "./utils/chunker.js";
 import { embedText } from "./services/embeddings.js";
 import { ensureCollection, client as qdrant } from "./services/qdrant.js";
 import fs from 'fs';
@@ -118,13 +118,9 @@ async function ingest() {
 
   console.log(`🚀 Ingesting ${pages.length} pages into Qdrant...`);
 
-  let nextId = 1;
-  
   function generateId(pageId: number, chunkIndex: number) {
     return pageId * 10000 + chunkIndex;
   }
-
-  const content = await getPageContentBySearch("regulament-de-ordine-interioara");
 
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);

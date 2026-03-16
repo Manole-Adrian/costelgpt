@@ -33,5 +33,3 @@ Datorita versiunii specifice de wiki folosita de EESTEC, unele pagini nu pot fi 
 In cazul modificarii modelului de generat embeddings, daca embeddingurile generate au un token size diferit fata de cel anterior, colectia din qdrant este stearsa. In rest, stergerea colectiei se face manual.
 
 Momentan sunt ingerate doar paginile din `interes-general`, `departamente` si `evenimente`
-
-TODO: Abstractizeaza integrarea qdrant

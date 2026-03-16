@@ -38,7 +38,6 @@ function debugVector(vector: any[], label = 'Vector') {
 
 export async function embedText(text: string) {
     try {
-        // console.log(`Generating embedding for text (${text.length} chars)...`);
         
         if (!localEmbedder) {
             console.log('Loading bge-small-en-v1.5 model...');
