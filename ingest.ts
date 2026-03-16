@@ -6,7 +6,6 @@ import { ensureCollection, client as qdrant } from "./services/qdrant.js";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { fetchPageText } from "./services/scraper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -130,19 +129,8 @@ async function ingest() {
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);
     
-     let content = await getPageContent(page.path, page.locale || "en", page.id);
+    let content = await getPageContent(page.path, page.locale || "en", page.id);
     
-    if (!content) {
-      console.log(`   ⚠️ GraphQL content empty. Attempting fallback scraper for path: ${page.path}...`);
-      try {
-        content = await fetchPageText(page.path);
-        if (content) {
-          console.log(`   ✅ Scraped ${content.length} characters successfully.`);
-        }
-      } catch (error: any) {
-        console.error(`   ❌ Scraper failed: ${error.message}`);
-      }
-    }
     if (!content) {
       console.log(`   ⚠️ No content, skipping`);
       continue;

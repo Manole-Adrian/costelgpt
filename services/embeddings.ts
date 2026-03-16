@@ -1,7 +1,7 @@
 import { pipeline } from '@xenova/transformers';
 
 let localEmbedder: any = null;
-const TARGET_DIMENSIONS = 1024; // For bge-small-en-v1.5
+const TARGET_DIMENSIONS = 1024;
 
 function validateEmbedding(vector:any[]) {
     const cleaned = vector.map(value => {

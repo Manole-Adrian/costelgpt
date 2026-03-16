@@ -171,34 +171,6 @@ RASPUNS:`;
   }
 }
 
-// Add conversation memory for follow-up questions
-const conversationHistory = new Map();
-
-export async function ragQueryWithHistory(question: string, sessionId = "default") {
-  const history = conversationHistory.get(sessionId) || [];
-  
-  // Include last 2 exchanges for context
-  const historyContext = history.slice(-2).map((h : any) => 
-    `Previous Q: ${h.question}\nPrevious A: ${h.answer}`
-  ).join("\n\n");
-  
-  const enhancedQuestion = historyContext 
-    ? `${historyContext}\n\nNew Question: ${question}`
-    : question;
-  
-  const result = await ragQuery(enhancedQuestion, 'Normal');
-  
-  // Store in history
-  history.push({ question, answer: result.answer });
-  if (history.length > 5) history.shift();
-  conversationHistory.set(sessionId, history);
-  
-  return {
-    ...result,
-    historyLength: history.length
-  };
-}
-
 // CLI interface
 async function main() {
   const args = process.argv.slice(2);
