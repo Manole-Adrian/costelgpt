@@ -14,15 +14,17 @@ Pentru a rula serviciul de ingerare, ruleaza `npm run ingest`
 
 In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia in `.env`
 
-WIKI_URL : URL-ul graphql al wiki-ului. Foloseste-l pe cel dat decat daca se schimba URL-ul. Obligatoriu
-WIKIJSTOKEN : API tokenul de pe wiki. Asigura-te ca ai permisiunile necesare. Obligatoriu.
-GEMINI_API_KEY : In cazul folosirii unui LLM google, este nevoie de aceasta cheie.
-QDRANT_URL : In cazul in care Qdrant este rulat local, este necesar acest URL
-WIKI_BASE_URL : URL-ul wiki-ului. Obligatoriu
-QDRANT_API_KEY : In cazul in care Qdrant este rulat in cloud, este necesar acest API key
-QDRANT_CLUSTER_ENDPOINT : In cazul in care Qdrant este rulat in cloud, este nevoie de acest endpoint
-BACKEND_PORT : Portul pe care sa ruleze serverul
-GEN_MODEL : Ce model sa fie folosit. Momentan optiunile sunt `google` si `ollama`
+| Nume cheie              | Obligatoriu | Descriere                                | Valoare Implicita                |
+| ----------------------- | :---------: | ---------------------------------------- | -------------------------------- |
+| WIKI_URL                |             | URL-ul GraphQL                           | `https://wiki.eestec.ro/graphql` |
+| WIKIJSTOKEN             |     \*      | wiki API token                           |                                  |
+| GEMINI_API_KEY          |             | API key gemini                           |                                  |
+| QDRANT_URL              |             | Pentru rulat qdrant local, URL-ul        |                                  |
+| WIKI_BASE_URL           |             | URL-ul wiki-ului                         | `https://wiki.eestec.ro/`        |
+| QDRANT_API_KEY          |             | Pentru rulat qdrant in cloud, API key    |                                  |
+| QDRANT_CLUSTER_ENDPOINT |             | Pentru rulat qdrant in cloud, endpointul |                                  |
+| BACKEND_PORT            |             | Portul serverului                        | `3000`                           |
+| GEN_MODEL               |             | Ce model sa foloseasca LLM-ul            | `google`                         |
 
 ## Ingerare
 

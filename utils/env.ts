@@ -12,7 +12,6 @@ type environmentArgs = {
     qdrantClusterEndpoint: string | undefined,
     port: string,
     genModel: string,
-    wikiCookie: string | undefined
 }
 
 export const environment : environmentArgs = {
@@ -25,5 +24,4 @@ export const environment : environmentArgs = {
     qdrantClusterEndpoint: process.env.QDRANT_CLUSTER_ENDPOINT,
     port: process.env.BACKEND_PORT || "3000",
     genModel: process.env.GEN_MODEL || 'google',
-    wikiCookie: process.env.WIKI_COOKIE
 }
