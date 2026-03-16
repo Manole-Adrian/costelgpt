@@ -26,8 +26,7 @@ costelRoutes.get('/prompt', async (req, res) => {
         return res.status(400).json({error: `Query parameter "tone" is required`});
     }
         
-    const jwt = authToken!.split(" ")[1];
-    const result = await getPrompt((query as string), (tone as string), jwt!)
+    const result = await getPrompt((query as string), (tone as string))
     res.json({
         ...result,
         timestamp: new Date().toISOString()
