@@ -6,6 +6,7 @@ import { ensureCollection, client as qdrant } from "./services/qdrant.js";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { fetchPageText } from "./services/scraper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +23,8 @@ function debugVector(vector:any[], chunkIndex: number) {
 async function ingestFromMarkdown(folderPath = "./sources") {
   console.log(`📂 Ingesting markdown files from: ${folderPath}`);
   
-  const fullPath = path.join(__dirname, folderPath);
+  const rootDir = path.resolve(__dirname, '..');
+  const fullPath = path.join(rootDir, "sources");
   
   if (!fs.existsSync(fullPath)) {
     console.error(`❌ Folder not found: ${fullPath}`);
@@ -128,7 +130,19 @@ async function ingest() {
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);
     
-    const content = await getPageContent(page.path, page.locale || "en", page.id);
+     let content = await getPageContent(page.path, page.locale || "en", page.id);
+    
+    if (!content) {
+      console.log(`   ⚠️ GraphQL content empty. Attempting fallback scraper for path: ${page.path}...`);
+      try {
+        content = await fetchPageText(page.path);
+        if (content) {
+          console.log(`   ✅ Scraped ${content.length} characters successfully.`);
+        }
+      } catch (error: any) {
+        console.error(`   ❌ Scraper failed: ${error.message}`);
+      }
+    }
     if (!content) {
       console.log(`   ⚠️ No content, skipping`);
       continue;
