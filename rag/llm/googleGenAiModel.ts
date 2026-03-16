@@ -12,7 +12,7 @@ export default class googleGenAiModel implements GenAiModel {
         this.ai = new GoogleGenAI({ apiKey: apiKey!})
         this.modelName = "gemini-2.5-flash"
         this.temperature = 0.1
-        this.maxOutputTokens = 1000
+        this.maxOutputTokens = 4096
     }
 
     async generateResponse(prompt: string): Promise<LlmResponse> {
