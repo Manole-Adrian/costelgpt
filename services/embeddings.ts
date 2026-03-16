@@ -1,7 +1,7 @@
 import { pipeline } from '@xenova/transformers';
 
 let localEmbedder: any = null;
-const TARGET_DIMENSIONS = 1024; // For bge-small-en-v1.5
+const TARGET_DIMENSIONS = 1024;
 
 function validateEmbedding(vector:any[]) {
     const cleaned = vector.map(value => {
@@ -38,7 +38,6 @@ function debugVector(vector: any[], label = 'Vector') {
 
 export async function embedText(text: string) {
     try {
-        // console.log(`Generating embedding for text (${text.length} chars)...`);
         
         if (!localEmbedder) {
             console.log('Loading bge-small-en-v1.5 model...');

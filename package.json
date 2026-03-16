@@ -5,8 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "ingest": "tsc && node ./dist/ingest.js --all",
+    "ingest": "tsc && node ./dist/ingest.js --wiki-only",
     "start": "tsc && node ./dist/index.js"
   },
   "author": "Manole Adrian",
