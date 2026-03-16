@@ -27,13 +27,11 @@ export async function getAllWikiPages() {
   const query = `
     query AllPages {
       pages {
-        search(query: "") {
-          results {
-            id
-            title
-            path
-            locale
-          }
+         list {
+          id
+          title
+          path
+          locale
         }
       }
     }
@@ -41,7 +39,7 @@ export async function getAllWikiPages() {
 
   const data = await fetchGraphQL(query);
   if (!data) return [];
-  const filteredData = data.pages.search.results.filter((page:any) => page.path.includes("asociatie/interes-general") || page.path.includes("asociatie/documente-oficiale") || page.path.includes("evenimente/") || page.path.includes("departamente/"))
+  const filteredData = data.pages.list.filter((page:any) => page.path.includes("asociatie/interes-general") || page.path.includes("asociatie/documente-oficiale") || page.path.includes("evenimente/") || page.path.includes("departamente/"))
 
   return filteredData
 }
