@@ -15,6 +15,7 @@ try {
         llmModel = new ollamaGenAiModel();
     }
     console.log("✅ Gemini client initialized");
+    console.log(`☁ QDrant Cluster: ${environment.qdrantClusterEndpoint}`)
 }
 catch (error) {
     console.error("❌ Failed to initialize Gemini:", error.message);
