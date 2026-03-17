@@ -3,9 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import costelRoutes from './routes/routes.js';
 import { rateLimit } from 'express-rate-limit';
-// import { environment } from './utils/env.js';
+import { environment } from './utils/env.js';
 const app = express();
-// const PORT = environment.port;
+const PORT = environment.port;
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000,
     limit: 10,
@@ -33,11 +33,11 @@ app.use(limiter);
 
 app.use('/api/v1', costelRoutes)
 
-// if (!process.env.FUNCTION_TARGET) {
-//     app.listen(PORT, () => {
-//         console.log(`🚀 RAG API running on port ${PORT}`);
-//         console.log(`🤖 LLM using ${environment.genModel}`);
-//     });
-// }
+if (!process.env.FUNCTION_TARGET) {
+    app.listen(PORT, () => {
+        console.log(`🚀 RAG API running on port ${PORT}`);
+        console.log(`🤖 LLM using ${environment.genModel}`);
+    });
+}
 
 export default app;
