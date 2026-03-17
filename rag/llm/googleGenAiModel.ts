@@ -1,5 +1,4 @@
 import { GoogleGenAI } from "@google/genai";
-import { environment } from "../../utils/env.js";
 import type { GenAiModel, LlmResponse } from "../../types/llm.js";
 
 export default class googleGenAiModel implements GenAiModel {

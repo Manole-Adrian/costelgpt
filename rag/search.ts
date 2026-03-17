@@ -172,58 +172,58 @@ RASPUNS:`;
 }
 
 // CLI interface
-async function main() {
-  const args = process.argv.slice(2);
+// async function main() {
+//   const args = process.argv.slice(2);
   
-  if (args.length === 0) {
-    console.log("❌ No arguments provided!");
-    console.log("\nUsage:");
-    console.log('  node search.js "Your question here"');
-    console.log("  node search.js --test");
-    console.log("  node search.js --model gemini-2.0-flash-exp \"Your question\"");
-    console.log("\nExample:");
-    console.log('  node search.js "Ce este ICE?"');
-    return;
-  }
+//   if (args.length === 0) {
+//     console.log("❌ No arguments provided!");
+//     console.log("\nUsage:");
+//     console.log('  node search.js "Your question here"');
+//     console.log("  node search.js --test");
+//     console.log("  node search.js --model gemini-2.0-flash-exp \"Your question\"");
+//     console.log("\nExample:");
+//     console.log('  node search.js "Ce este ICE?"');
+//     return;
+//   }
   
-  // Parse model flag if present
-  let modelName = "gemini-2.5-flash";
-  let questionArgs = args;
+//   // Parse model flag if present
+//   let modelName = "gemini-2.5-flash";
+//   let questionArgs = args;
   
-  const modelIndex = args.indexOf("--model");
-  if (modelIndex !== -1 && args.length > modelIndex + 1) {
-    modelName = args[modelIndex + 1]!;
-    questionArgs = args.filter((_, idx) => idx !== modelIndex && idx !== modelIndex + 1);
-  }
+//   const modelIndex = args.indexOf("--model");
+//   if (modelIndex !== -1 && args.length > modelIndex + 1) {
+//     modelName = args[modelIndex + 1]!;
+//     questionArgs = args.filter((_, idx) => idx !== modelIndex && idx !== modelIndex + 1);
+//   }
   
 
-  const question = questionArgs.join(" ");
-  console.log(`🤖 Asking: "${question}"`);
-  console.log(`🤖 Using model: ${modelName}`);
+//   const question = questionArgs.join(" ");
+//   console.log(`🤖 Asking: "${question}"`);
+//   console.log(`🤖 Using model: ${modelName}`);
   
-  const result = await ragQuery(question, 'Normal', { modelName });
+//   const result = await ragQuery(question, 'Normal', { modelName });
   
-  console.log("\n" + "=".repeat(60));
-  console.log("ANSWER:");
-  console.log("=".repeat(60));
-  console.log(result.answer);
-  console.log("\n" + "=".repeat(60));
+//   console.log("\n" + "=".repeat(60));
+//   console.log("ANSWER:");
+//   console.log("=".repeat(60));
+//   console.log(result.answer);
+//   console.log("\n" + "=".repeat(60));
   
-  if (result.sources.length > 0) {
-    console.log("\n📚 SOURCES:");
-    result.sources.forEach(source => {
-      console.log(`[${source.index}] ${source.title} (Score: ${source.score.toFixed(3)})`);
-      console.log(`   Path: ${source.path}`);
-      if (source.textPreview) {
-        console.log(`   Preview: ${source.textPreview}`);
-      }
-    });
-  }
+//   if (result.sources.length > 0) {
+//     console.log("\n📚 SOURCES:");
+//     result.sources.forEach(source => {
+//       console.log(`[${source.index}] ${source.title} (Score: ${source.score.toFixed(3)})`);
+//       console.log(`   Path: ${source.path}`);
+//       if (source.textPreview) {
+//         console.log(`   Preview: ${source.textPreview}`);
+//       }
+//     });
+//   }
   
-  console.log(`\n📊 Confidence: ${result.confidence.toFixed(3)}`);
-  console.log(`🔗 Sources used: ${result.totalSources}`);
+//   console.log(`\n📊 Confidence: ${result.confidence.toFixed(3)}`);
+//   console.log(`🔗 Sources used: ${result.totalSources}`);
   
-}
+// }
 
 // // THIS IS WHAT MAKES IT RUN
 // main().catch(error => {

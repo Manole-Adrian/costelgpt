@@ -11,7 +11,7 @@ costelRoutes.get('/prompt', async (req, res) => {
 
     const authToken = req.header("Authorization");
     if(!authToken) {
-        res.status(401).json({error:"401 Unauthorized"})
+        return res.status(401).json({error:"401 Unauthorized"})
     }
     const decodedJwt:any = jwtDecode(authToken!);
     if (!decodedJwt.firebase.identities.email.includes("@eestec.ro") && decodedJwt.firebase.sign_in_provider != "google.com") {
@@ -27,7 +27,7 @@ costelRoutes.get('/prompt', async (req, res) => {
     }
         
     const result = await getPrompt((query as string), (tone as string))
-    res.json({
+    return res.json({
         ...result,
         timestamp: new Date().toISOString()
     });
