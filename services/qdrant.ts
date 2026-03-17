@@ -7,7 +7,7 @@ const client = new QdrantClient({
 });
 
 const COLLECTION_NAME = 'wiki';
-const VECTOR_DIMENSION = 1024; // this MUST match embeddings model
+const VECTOR_DIMENSION = 384; // this MUST match embeddings model
 
 export async function ensureCollection() {
   try {
