@@ -24,7 +24,7 @@ try {
 export async function ragQuery(question: string, tone: string, options = {}) {
 
   const limit = 4
-  const scoreThreshold = 0.7
+  const scoreThreshold = 0.5
   const maxContextLength = 6000
 
   try {

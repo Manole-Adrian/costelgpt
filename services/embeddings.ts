@@ -1,7 +1,7 @@
 import { pipeline } from '@xenova/transformers';
 
 let localEmbedder: any = null;
-const TARGET_DIMENSIONS = 384;
+const TARGET_DIMENSIONS = 1024;
 
 function validateEmbedding(vector:any[]) {
     const cleaned = vector.map(value => {
@@ -41,7 +41,9 @@ export async function embedText(text: string) {
         
         if (!localEmbedder) {
             console.log('Loading MiniLM-L12-v2 model...');
-            localEmbedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2');
+            localEmbedder = await pipeline('feature-extraction', 'Xenova/bge-m3', {
+                quantized: true
+            });
         }
         
         const output = await localEmbedder(text, { 
