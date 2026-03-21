@@ -39,7 +39,12 @@ export async function getAllWikiPages() {
 
   const data = await fetchGraphQL(query);
   if (!data) return [];
-  const filteredData = data.pages.list.filter((page:any) => page.path.includes("asociatie/interes-general") || page.path.includes("asociatie/documente-oficiale") || page.path.includes("evenimente/") || page.path.includes("departamente/"))
+  const filteredData = data.pages.list.filter((page:any) => 
+    page.path.includes("asociatie/interes-general") || 
+    page.path.includes("asociatie/documente-oficiale") ||
+    page.path.includes("evenimente/") || 
+    page.path.includes("departamente/")
+)
 
   return filteredData
 }
