@@ -41,7 +41,7 @@ export async function embedText(text: string) {
         
         if (!localEmbedder) {
             console.log('Loading MiniLM-L12-v2 model...');
-            localEmbedder = await pipeline('feature-extraction', 'Xenova/bge-m3', {
+            localEmbedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2', {
                 quantized: true
             });
         }

@@ -8,7 +8,7 @@ const app = express();
 const PORT = environment.port;
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000,
-    limit: 10,
+    limit: 15,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     ipv6Subnet: 56
