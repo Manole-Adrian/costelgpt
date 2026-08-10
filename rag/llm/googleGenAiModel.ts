@@ -9,7 +9,7 @@ export default class googleGenAiModel implements GenAiModel {
     
     constructor(apiKey: string) {
         this.ai = new GoogleGenAI({ apiKey: apiKey!})
-        this.modelName = "gemini-2.5-flash"
+        this.modelName = "gemini-3.5-flash-lite"
         this.temperature = 0.1
         this.maxOutputTokens = 4096
     }

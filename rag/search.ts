@@ -24,7 +24,7 @@ try {
 export async function ragQuery(question: string, tone: string, options = {}) {
 
   const limit = 4
-  const scoreThreshold = 0.4
+  const scoreThreshold = 0.2
   const maxContextLength = 6000
 
   try {
@@ -34,13 +34,18 @@ export async function ragQuery(question: string, tone: string, options = {}) {
     const queryVector = await embedText(question);
     
     // 2. Search Qdrant with filters
-    const searchResults = await qdrant.search("wiki", {
-      vector: queryVector,
+    const rawSearchResults = await qdrant.query("wiki", {
+      query: queryVector,
       limit: limit * 2,
       with_payload: true,
       with_vector: false,
       score_threshold: scoreThreshold,
+      params: {
+        hnsw_ef: 256
+      }
     });
+
+    const searchResults = rawSearchResults.points
 
     console.log(`📊 Found ${searchResults.length} potential matches`);
     
@@ -52,12 +57,6 @@ export async function ragQuery(question: string, tone: string, options = {}) {
         confidence: 0
       };
     }
-
-    // Debug what's in the payload
-    console.log("Sample payload structure:");
-    searchResults.slice(0, 2).forEach((result, i) => {
-      console.log(`  Result ${i+1}:`, Object.keys(result.payload || {}));
-    });
 
     // Filter and validate results have text
     const filteredResults = searchResults
@@ -105,6 +104,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
     }
 
     console.log(`📚 Using ${sources.length} sources for context`);
+    console.log(`Source titles: ${sources.map((source) => { return source.title})}`)
     console.log(`📝 Context length: ${context.length} characters`);
 
     // Only proceed if we have context

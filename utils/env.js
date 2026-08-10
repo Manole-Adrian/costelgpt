@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
+
 dotenv.config({ path: '../.env' });
+
 export const environment = {
     wikiUrl: process.env.WIKI_URL || "https://wiki.eestec.ro/graphql",
     wikiJSToken: process.env.WIKIJSTOKEN,
@@ -11,4 +13,3 @@ export const environment = {
     port: process.env.BACKEND_PORT || "3000",
     genModel: process.env.GEN_MODEL || 'google',
 };
-//# sourceMappingURL=env.js.map

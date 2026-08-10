@@ -25,7 +25,7 @@ costelRoutes.get('/prompt', async (req, res) => {
     if (!tone) {
         return res.status(400).json({error: `Query parameter "tone" is required`});
     }
-        
+    console.log("got request!")
     const result = await getPrompt((query as string), (tone as string))
     return res.json({
         ...result,
