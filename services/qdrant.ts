@@ -11,6 +11,28 @@ const VECTOR_DIMENSION = 384; // this MUST match embeddings model
 const DENSE_VECTOR_NAME = 'dense';
 const SPARSE_VECTOR_NAME = 'sparse';
 
+// Deleting a page's old chunks filters on these fields, and Qdrant refuses to
+// filter on a payload field that has no index.
+const PAYLOAD_INDEXES = [
+  { field: 'pageId', schema: 'integer' },
+  { field: 'filePath', schema: 'keyword' },
+] as const;
+
+async function ensurePayloadIndexes() {
+  for (const { field, schema } of PAYLOAD_INDEXES) {
+    try {
+      await client.createPayloadIndex(COLLECTION_NAME, {
+        field_name: field,
+        field_schema: schema,
+        wait: true
+      });
+    } catch (error: any) {
+      const detail = error.data?.status?.error ?? error.message;
+      console.error(`Failed to create payload index for '${field}':`, detail);
+    }
+  }
+}
+
 export async function ensureCollection() {
   try {
     const collections = await client.getCollections();
@@ -53,7 +75,9 @@ export async function ensureCollection() {
     } else {
       console.log(`Collection '${COLLECTION_NAME}' already exists with correct dimensions`);
     }
-    
+
+    await ensurePayloadIndexes();
+
     return true;
   } catch (error) {
     console.error('Failed to ensure collection:', error);

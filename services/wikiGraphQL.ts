@@ -14,10 +14,25 @@ async function fetchGraphQL(query: string, variables = {}) {
     body: JSON.stringify({ query, variables }),
   });
 
-  const json:any = await res.json();
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`GraphQL request failed: ${res.status} ${res.statusText}`);
+    if (body) console.error(body.slice(0, 500));
+    return null;
+  }
+
+  let json: any;
+  try {
+    json = await res.json();
+  } catch (error: any) {
+    console.error("GraphQL response was not valid JSON:", error.message);
+    return null;
+  }
+
   if (json.errors) {
     console.error("GraphQL errors:", json.errors);
-    console.error(json.errors[0].extensions.exception)
+    const exception = json.errors[0]?.extensions?.exception;
+    if (exception) console.error(exception);
     return null;
   }
   return json.data;

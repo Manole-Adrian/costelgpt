@@ -12,6 +12,8 @@ type environmentArgs = {
     qdrantClusterEndpoint: string | undefined,
     port: string,
     genModel: string,
+    firebaseProjectId: string,
+    authDevBypass: boolean,
 }
 
 export const environment : environmentArgs = {
@@ -24,4 +26,6 @@ export const environment : environmentArgs = {
     qdrantClusterEndpoint: process.env.QDRANT_CLUSTER_ENDPOINT,
     port: process.env.BACKEND_PORT || "3000",
     genModel: process.env.GEN_MODEL || 'google',
+    firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'costelgpt-2e51d',
+    authDevBypass: process.env.AUTH_DEV_BYPASS === 'true',
 }

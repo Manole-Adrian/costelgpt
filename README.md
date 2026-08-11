@@ -25,10 +25,12 @@ In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia 
 | QDRANT_CLUSTER_ENDPOINT |             | Pentru rulat qdrant in cloud, endpointul |                                  |
 | BACKEND_PORT            |             | Portul serverului                        | `3000`                           |
 | GEN_MODEL               |             | Ce model sa foloseasca LLM-ul            | `google`                         |
+| AUTH_DEV_BYPASS         |             | Oprirea autentificarii pt development         | `false`                         |
+| FIREBASE_PROJECT_ID     |             | ID-ul proiectului pe firebase         | `costelgpt-2e51d/costel-676d9`                         |
 
 ## Ingerare
 
-Ingerarea se poate executa ruland fila `ingest.ts`. Aceasta primeste unul din trei parametri. `--all`, `--markdown`, `--wiki-only`
+Ingerarea se poate executa ruland fila `ingest.ts`. Aceasta primeste unul din trei parametri. `--all`, `--markdown`, `--wiki-only` //doar --wiki-only functioneaza
 
 Datorita versiunii specifice de wiki folosita de EESTEC, unele pagini nu pot fi procesate automat prin graphQL. Alternativa pentru asta ar fi un scraper custom, ceea ce a depasit resursele mele. Asadar, paginile considerate importante care nu pot fi procesate automat prin graphQL sunt downloadate si puse in markdown. Argumentul `--markdown` ingereaza doar filele markdown, `--wiki-only` doar paginile de wiki, iar `--all` pe toate.
 

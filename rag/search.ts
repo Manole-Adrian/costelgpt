@@ -25,7 +25,11 @@ try {
 export async function ragQuery(question: string, tone: string, options = {}) {
 
   const limit = 5
-  const scoreThreshold = 0.7
+  // Cosine similarity is bounded 0-1, so an absolute cutoff is meaningful.
+  const denseScoreThreshold = 0.5
+  // IDF scores are an unbounded sum over matched terms, so their magnitude
+  // only means something relative to the best hit for the same question.
+  const sparseScoreRatio = 0.6
   const maxContextLength = 6000
 
   try {
@@ -41,22 +45,29 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       limit: limit * 2,
       with_payload: true,
       with_vector: false,
-      score_threshold: scoreThreshold,
+      score_threshold: denseScoreThreshold,
       params: {
         hnsw_ef: 256
       }
     });
 
-    const validateResults = (results: typeof denseSearchResults.points) => results
+    // The score rule is passed in because dense and sparse scores live on
+    // different scales and cannot share a single cutoff.
+    const validateResults = (
+      results: typeof denseSearchResults.points,
+      keepScore: (score: number) => boolean
+    ) => results
       .filter(r => {
         const hasText = r.payload?.text && typeof r.payload.text === 'string';
-        const hasScore = r.score >= scoreThreshold;
-        return hasText && hasScore;
+        return hasText && keepScore(r.score);
       })
-      .slice(0, limit)
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
 
-    let filteredResults = validateResults(denseSearchResults.points);
+    let filteredResults = validateResults(
+      denseSearchResults.points,
+      score => score >= denseScoreThreshold
+    );
     console.log(`📊 Dense search found ${denseSearchResults.points.length} potential matches`);
 
     if (filteredResults.length === 0) {
@@ -72,8 +83,17 @@ export async function ragQuery(question: string, tone: string, options = {}) {
         }
       });
 
-      filteredResults = validateResults(sparseSearchResults.points);
+      // Anchor the cutoff to this query's best hit instead of a fixed number.
+      const topSparseScore = sparseSearchResults.points
+        .reduce((best, point) => Math.max(best, point.score), 0);
+      const sparseCutoff = topSparseScore * sparseScoreRatio;
+
+      filteredResults = validateResults(
+        sparseSearchResults.points,
+        score => score >= sparseCutoff
+      );
       console.log(`📊 Sparse search found ${sparseSearchResults.points.length} potential matches`);
+      console.log(`   Top sparse score ${topSparseScore.toFixed(3)}, keeping ≥ ${sparseCutoff.toFixed(3)}`);
     }
 
     if (filteredResults.length === 0) {
@@ -142,7 +162,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
 
     const tonePrompt: string = (costelGptTones as any)[tone]
 
-    const prompt = `Esti un asistent al asociatiei EESTEC (Electrical Engineering Students European Association). Numele tau este CostelGPT si ai fost creat de Manole Adrian. Obiectivul tau este sa ajuti membrii cu informatiile de pe wiki-ul intern, la care ai acces. La nevoie poti oferi feedback sau opinii, insa doar daca esti intrebat.
+    const prompt = `Esti un asistent al asociatiei EESTEC (Electrical Engineering Students European Association). Numele tau este CostelGPT. Obiectivul tau este sa ajuti membrii cu informatiile de pe wiki-ul intern, la care ai acces. La nevoie poti oferi feedback sau opinii, insa doar daca esti intrebat.
 
 CONTEXT:
 ${context}
@@ -153,7 +173,7 @@ INSTRUCTIUNI:
 3. Raspunde factual, dar nu da raspunsuri foarte scurte. Intra in detalii daca crezi ca sunt utile.
 4. Cand un utilizator intreaba de ROI, acesta face referire la Regulamentul de Ordine Interioara.
 5. Nu include sursele tale in raspuns.
-6. Nu include cine te-a creat decat daca esti intrebat
+6. Ai fost creat de Manole Adrian. Mentioneaza acest lucru doar daca utilizatorul intreaba explicit cine te-a creat.
 7. Evenimentele la care ai tu acces deja s-au intamplat. Nu vorbi cu referire la viitor.
 8. Departamentul de IT exista, si este condus de VP-IT. Nu mai exista Coordonator IT, este o chestie a trecutului.
 9. Foloseste un ton ${tonePrompt}
@@ -192,62 +212,62 @@ RASPUNS:`;
   }
 }
 
-// CLI interface
-// async function main() {
-//   const args = process.argv.slice(2);
+//CLI interface
+async function main() {
+  const args = process.argv.slice(2);
   
-//   if (args.length === 0) {
-//     console.log("❌ No arguments provided!");
-//     console.log("\nUsage:");
-//     console.log('  node search.js "Your question here"');
-//     console.log("  node search.js --test");
-//     console.log("  node search.js --model gemini-2.0-flash-exp \"Your question\"");
-//     console.log("\nExample:");
-//     console.log('  node search.js "Ce este ICE?"');
-//     return;
-//   }
+  if (args.length === 0) {
+    console.log("❌ No arguments provided!");
+    console.log("\nUsage:");
+    console.log('  node search.js "Your question here"');
+    console.log("  node search.js --test");
+    console.log("  node search.js --model gemini-2.0-flash-exp \"Your question\"");
+    console.log("\nExample:");
+    console.log('  node search.js "Ce este ICE?"');
+    return;
+  }
   
-//   // Parse model flag if present
-//   let modelName = "gemini-2.5-flash";
-//   let questionArgs = args;
+  // Parse model flag if present
+  let modelName = "gemini-2.5-flash";
+  let questionArgs = args;
   
-//   const modelIndex = args.indexOf("--model");
-//   if (modelIndex !== -1 && args.length > modelIndex + 1) {
-//     modelName = args[modelIndex + 1]!;
-//     questionArgs = args.filter((_, idx) => idx !== modelIndex && idx !== modelIndex + 1);
-//   }
+  const modelIndex = args.indexOf("--model");
+  if (modelIndex !== -1 && args.length > modelIndex + 1) {
+    modelName = args[modelIndex + 1]!;
+    questionArgs = args.filter((_, idx) => idx !== modelIndex && idx !== modelIndex + 1);
+  }
   
 
-//   const question = questionArgs.join(" ");
-//   console.log(`🤖 Asking: "${question}"`);
-//   console.log(`🤖 Using model: ${modelName}`);
+  const question = questionArgs.join(" ");
+  console.log(`🤖 Asking: "${question}"`);
+  console.log(`🤖 Using model: ${modelName}`);
   
-//   const result = await ragQuery(question, 'Normal', { modelName });
+  const result = await ragQuery(question, 'Normal', { modelName });
   
-//   console.log("\n" + "=".repeat(60));
-//   console.log("ANSWER:");
-//   console.log("=".repeat(60));
-//   console.log(result.answer);
-//   console.log("\n" + "=".repeat(60));
+  console.log("\n" + "=".repeat(60));
+  console.log("ANSWER:");
+  console.log("=".repeat(60));
+  console.log(result.answer);
+  console.log("\n" + "=".repeat(60));
   
-//   if (result.sources.length > 0) {
-//     console.log("\n📚 SOURCES:");
-//     result.sources.forEach(source => {
-//       console.log(`[${source.index}] ${source.title} (Score: ${source.score.toFixed(3)})`);
-//       console.log(`   Path: ${source.path}`);
-//       if (source.textPreview) {
-//         console.log(`   Preview: ${source.textPreview}`);
-//       }
-//     });
-//   }
+  if (result.sources.length > 0) {
+    console.log("\n📚 SOURCES:");
+    result.sources.forEach(source => {
+      console.log(`[${source.index}] ${source.title} (Score: ${source.score.toFixed(3)})`);
+      console.log(`   Path: ${source.path}`);
+      if (source.textPreview) {
+        console.log(`   Preview: ${source.textPreview}`);
+      }
+    });
+  }
   
-//   console.log(`\n📊 Confidence: ${result.confidence.toFixed(3)}`);
-//   console.log(`🔗 Sources used: ${result.totalSources}`);
+  console.log(`\n📊 Confidence: ${result.confidence.toFixed(3)}`);
+  console.log(`🔗 Sources used: ${result.totalSources}`);
   
-// }
+}
 
-// // THIS IS WHAT MAKES IT RUN
-// main().catch(error => {
-//   console.error("💥 Fatal error:", error);
-//   process.exit(1);
-// });
+// THIS IS WHAT MAKES IT RUN
+main().catch(error => {
+  console.error("💥 Fatal error:", error);
+  process.exit(1);
+});

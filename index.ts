@@ -19,7 +19,9 @@ const allowedOrigins = [`http://localhost:3000`, 'https://costel.eestec.ro', 'ht
 app.use(helmet())
 app.use(cors({
     origin: function (origin, callback) {
-        if(allowedOrigins.indexOf(origin!) !== -1) {
+        // No Origin header means the request is not cross-origin at all
+        // (curl, server-to-server, health checks), so there is nothing to block.
+        if(!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true)
         } else {
             callback(new Error('Not allowed by CORS'))
