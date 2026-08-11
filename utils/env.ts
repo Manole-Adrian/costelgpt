@@ -26,6 +26,6 @@ export const environment : environmentArgs = {
     qdrantClusterEndpoint: process.env.QDRANT_CLUSTER_ENDPOINT,
     port: process.env.BACKEND_PORT || "3000",
     genModel: process.env.GEN_MODEL || 'google',
-    firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'costelgpt-2e51d',
+    firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'costel-676d9',
     authDevBypass: process.env.AUTH_DEV_BYPASS === 'true',
 }
