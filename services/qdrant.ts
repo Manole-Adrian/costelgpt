@@ -8,6 +8,8 @@ const client = new QdrantClient({
 
 const COLLECTION_NAME = 'wiki';
 const VECTOR_DIMENSION = 384; // this MUST match embeddings model
+const DENSE_VECTOR_NAME = 'dense';
+const SPARSE_VECTOR_NAME = 'sparse';
 
 export async function ensureCollection() {
   try {
@@ -16,10 +18,14 @@ export async function ensureCollection() {
     
     if (collectionExists) {
       const info = await client.getCollection(COLLECTION_NAME);
-      const currentDim = info.config.params.vectors!.size;
+      const vectors = info.config.params.vectors;
+      const currentDim = vectors && typeof vectors === 'object' && 'size' in vectors
+        ? vectors.size
+        : vectors?.[DENSE_VECTOR_NAME]?.size;
+      const hasExpectedSparseVector = Boolean(info.config.params.sparse_vectors?.[SPARSE_VECTOR_NAME]);
       
-      if (currentDim !== VECTOR_DIMENSION) {
-        console.log(`Deleting old collection (has ${currentDim} dimensions, need ${VECTOR_DIMENSION})...`);
+      if (currentDim !== VECTOR_DIMENSION || !hasExpectedSparseVector) {
+        console.log('Deleting old collection because its vector schema does not support dense and sparse search...');
         await client.deleteCollection(COLLECTION_NAME);
         collectionExists = false;
       }
@@ -29,8 +35,15 @@ export async function ensureCollection() {
       console.log(`Creating new collection with ${VECTOR_DIMENSION} dimensions...`);
       await client.createCollection(COLLECTION_NAME, {
         vectors: {
-          size: VECTOR_DIMENSION,
-          distance: 'Cosine'
+          [DENSE_VECTOR_NAME]: {
+            size: VECTOR_DIMENSION,
+            distance: 'Cosine'
+          }
+        },
+        sparse_vectors: {
+          [SPARSE_VECTOR_NAME]: {
+            modifier: 'idf'
+          }
         },
         optimizers_config: {
           default_segment_number: 2

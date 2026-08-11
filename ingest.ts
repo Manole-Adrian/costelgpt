@@ -3,6 +3,7 @@ import { getAllWikiPages, getPageContent } from "./services/wikiGraphQL.ts";
 import { chunkText } from "./utils/chunker.ts";
 import { embedText } from "./services/embeddings.js";
 import { ensureCollection, client as qdrant } from "./services/qdrant.js";
+import { createSparseVector } from "./services/sparse.js";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -61,7 +62,10 @@ async function ingestFromMarkdown(folderPath = "./sources") {
           
           const point = {
             id: pointId,
-            vector: vector,
+            vector: {
+              dense: vector,
+              sparse: createSparseVector(chunks[i]!)
+            },
             payload: {
               pageId: -1,
               title: title,
@@ -152,7 +156,10 @@ async function ingest() {
         // Prepare the point
         const point = {
           id: pointId,
-          vector: vector,
+          vector: {
+            dense: vector,
+            sparse: createSparseVector(chunks[i]!)
+          },
           payload: {
             pageId: page.id,
             title: page.title,

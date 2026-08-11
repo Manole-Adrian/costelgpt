@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { embedText } from "../services/embeddings.js";
+import { createSparseVector } from "../services/sparse.js";
 import { client as qdrant } from "../services/qdrant.js";
 import { environment } from "../utils/env.js";
 import costelGptTones from "./tones.js"
@@ -23,8 +24,8 @@ try {
 
 export async function ragQuery(question: string, tone: string, options = {}) {
 
-  const limit = 4
-  const scoreThreshold = 0.2
+  const limit = 5
+  const scoreThreshold = 0.7
   const maxContextLength = 6000
 
   try {
@@ -34,8 +35,9 @@ export async function ragQuery(question: string, tone: string, options = {}) {
     const queryVector = await embedText(question);
     
     // 2. Search Qdrant with filters
-    const rawSearchResults = await qdrant.query("wiki", {
+    const denseSearchResults = await qdrant.query("wiki", {
       query: queryVector,
+      using: "dense",
       limit: limit * 2,
       with_payload: true,
       with_vector: false,
@@ -45,21 +47,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       }
     });
 
-    const searchResults = rawSearchResults.points
-
-    console.log(`📊 Found ${searchResults.length} potential matches`);
-    
-    if (searchResults.length === 0) {
-      return {
-        answer: "I couldn't find relevant information to answer your question.",
-        sources: [],
-        scores: [],
-        confidence: 0
-      };
-    }
-
-    // Filter and validate results have text
-    const filteredResults = searchResults
+    const validateResults = (results: typeof denseSearchResults.points) => results
       .filter(r => {
         const hasText = r.payload?.text && typeof r.payload.text === 'string';
         const hasScore = r.score >= scoreThreshold;
@@ -67,6 +55,35 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       })
       .slice(0, limit)
       .sort((a, b) => b.score - a.score);
+
+    let filteredResults = validateResults(denseSearchResults.points);
+    console.log(`📊 Dense search found ${denseSearchResults.points.length} potential matches`);
+
+    if (filteredResults.length === 0) {
+      console.log('🔁 Dense search was not good enough; trying sparse search');
+      const sparseSearchResults = await qdrant.query("wiki", {
+        query: createSparseVector(question),
+        using: "sparse",
+        limit: limit * 2,
+        with_payload: true,
+        with_vector: false,
+        params: {
+          indexed_only: true
+        }
+      });
+
+      filteredResults = validateResults(sparseSearchResults.points);
+      console.log(`📊 Sparse search found ${sparseSearchResults.points.length} potential matches`);
+    }
+
+    if (filteredResults.length === 0) {
+      return {
+        answer: "I couldn't find relevant information to answer your question.",
+        sources: [],
+        scores: [],
+        confidence: 0
+      };
+    }
 
     console.log(`✅ ${filteredResults.length} results passed validation`);
 
@@ -99,12 +116,16 @@ export async function ragQuery(question: string, tone: string, options = {}) {
         title: result.payload?.title || 'Unknown',
         path: result.payload?.path || 'Unknown',
         chunkIndex: result.payload?.chunkIndex || 0,
-        textPreview: text.substring(0, Math.min(150, text.length)) + (text.length > 150 ? '...' : '')
+        textPreview: text
       });
     }
 
     console.log(`📚 Using ${sources.length} sources for context`);
-    console.log(`Source titles: ${sources.map((source) => { return source.title})}`)
+    sources.forEach(({title,score,textPreview}) => {
+      console.log(`Source title: ${title}`)
+      console.log(`Score: ${score}`)
+      console.log(`Text Preview: ${textPreview}`)
+    })
     console.log(`📝 Context length: ${context.length} characters`);
 
     // Only proceed if we have context
