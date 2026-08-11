@@ -25,6 +25,8 @@ In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia 
 | QDRANT_CLUSTER_ENDPOINT |             | Pentru rulat qdrant in cloud, endpointul |                                  |
 | BACKEND_PORT            |             | Portul serverului                        | `3000`                           |
 | GEN_MODEL               |             | Ce model sa foloseasca LLM-ul            | `google`                         |
+| AUTH_DEV_BYPASS         |             | Oprirea autentificarii pt development    | `false`                          |
+| FIREBASE_PROJECT_ID     |             | ID-ul proiectului pe firebase            | `costel-676d9`                   |
 
 ## Ingerare
 

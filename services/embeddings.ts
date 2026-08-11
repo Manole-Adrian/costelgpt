@@ -7,22 +7,21 @@ function validateEmbedding(vector:any[]) {
     const cleaned = vector.map(value => {
         const num = parseFloat(value);
         if (isNaN(num)) {
-            console.warn(`Invalid embedding value: ${value}, replacing with 0`);
-            return 0;
+            throw new Error(`Embedding contained a non-numeric value: ${value}`);
         }
         return num;
     });
-    
+
     if (cleaned.length !== TARGET_DIMENSIONS) {
-        console.warn(`Vector dimension mismatch: ${cleaned.length} != ${TARGET_DIMENSIONS}`);
+        throw new Error(`Vector dimension mismatch: ${cleaned.length} != ${TARGET_DIMENSIONS}`);
     }
-    
+
     const magnitude = Math.sqrt(cleaned.reduce((sum, val) => sum + val * val, 0));
-    if (magnitude > 0) {
-        return cleaned.map(val => val / magnitude);
+    if (magnitude === 0) {
+        throw new Error('Embedding is an all-zero vector, so it carries no meaning');
     }
-    
-    return cleaned;
+
+    return cleaned.map(val => val / magnitude);
 }
 
 function debugVector(vector: any[], label = 'Vector') {
@@ -36,7 +35,7 @@ function debugVector(vector: any[], label = 'Vector') {
     }
 }
 
-export async function embedText(text: string) {
+export async function embedText(text: string): Promise<number[]> {
     try {
         
         if (!localEmbedder) {
@@ -51,8 +50,8 @@ export async function embedText(text: string) {
             normalize: true 
         });
         
-        let vector = Array.from(output.data);
-        
+        let vector: number[] = Array.from(output.data as ArrayLike<number>);
+
         debugVector(vector, 'Raw embedding');
         
         vector = validateEmbedding(vector);
@@ -62,10 +61,10 @@ export async function embedText(text: string) {
         return vector;
         
     } catch (error) {
+        // Never fall back to a zero vector: it passes every sanity check but
+        // matches nothing, so bad data would enter Qdrant unnoticed.
         console.error('Embedding failed:', error);
-        
-        console.warn('Returning zero vector as fallback');
-        return new Array(TARGET_DIMENSIONS).fill(0);
+        throw error instanceof Error ? error : new Error(String(error));
     }
 }
 
