@@ -1,7 +1,8 @@
 import { pipeline } from '@xenova/transformers';
+import settings from '../config/settings.ts';
 
 let localEmbedder: any = null;
-const TARGET_DIMENSIONS = 384;
+const TARGET_DIMENSIONS = settings.rag.vectorDimensions;
 
 function validateEmbedding(vector:any[]) {
     const cleaned = vector.map(value => {
@@ -39,8 +40,7 @@ export async function embedText(text: string): Promise<number[]> {
     try {
         
         if (!localEmbedder) {
-            console.log('Loading MiniLM-L12-v2 model...');
-            localEmbedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2', {
+            localEmbedder = await pipeline('feature-extraction', settings.rag.embeddingsModel, {
                 quantized: true
             });
         }

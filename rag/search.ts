@@ -7,6 +7,7 @@ import costelGptTones from "./tones.js"
 import type { GenAiModel } from "../types/llm.js";
 import googleGenAiModel from "./llm/googleGenAiModel.js";
 import ollamaGenAiModel from "./llm/ollamaGenAiModel.js";
+import settings from "../config/settings.ts";
 
 // Initialize with error handling
 let llmModel: GenAiModel;
@@ -24,13 +25,12 @@ try {
 
 export async function ragQuery(question: string, tone: string, options = {}) {
 
-  const limit = 5
+  const limit = settings.rag.sourcesLimit
   // Cosine similarity is bounded 0-1, so an absolute cutoff is meaningful.
-  const denseScoreThreshold = 0.5
+  const denseScoreThreshold = settings.rag.denseScoreThreshold
   // IDF scores are an unbounded sum over matched terms, so their magnitude
   // only means something relative to the best hit for the same question.
-  const sparseScoreRatio = 0.6
-  const maxContextLength = 6000
+  const sparseScoreRatio = settings.rag.sparseScoreRatio
 
   try {
     console.log(`🔍 Processing question: "${question}"`);
@@ -47,7 +47,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       with_vector: false,
       score_threshold: denseScoreThreshold,
       params: {
-        hnsw_ef: 256
+        hnsw_ef: settings.rag.denseHnswEf
       }
     });
 

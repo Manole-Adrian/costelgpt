@@ -1,5 +1,6 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { environment } from '../utils/env.js';
+import settings from '../config/settings.ts';
 
 const client = new QdrantClient({
     url: environment.qdrantClusterEndpoint!,
@@ -7,7 +8,7 @@ const client = new QdrantClient({
 });
 
 const COLLECTION_NAME = 'wiki';
-const VECTOR_DIMENSION = 384; // this MUST match embeddings model
+const VECTOR_DIMENSION = settings.rag.vectorDimensions; // this MUST match embeddings model
 const DENSE_VECTOR_NAME = 'dense';
 const SPARSE_VECTOR_NAME = 'sparse';
 
