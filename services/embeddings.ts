@@ -39,18 +39,27 @@ function debugVector(vector: any[], label = 'Vector') {
 export async function embedText(text: string): Promise<number[]> {
     try {
         
-        if (!localEmbedder) {
-            localEmbedder = await pipeline('feature-extraction', settings.rag.embeddingsModel, {
-                quantized: true
-            });
-        }
+        // if (!localEmbedder) {
+        //     localEmbedder = await pipeline('feature-extraction', settings.rag.embeddingsModel, {
+        //         quantized: true
+        //     });
+        // }
         
-        const output = await localEmbedder(text, { 
-            pooling: 'mean', 
-            normalize: true 
+        // const output = await localEmbedder(text, { 
+        //     pooling: 'mean', 
+        //     normalize: true 
+        // });
+
+        const response = await fetch(`http://localhost:8001/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ text: text})
         });
+        const raw_output = await response.json();
+        const output = raw_output.embedding
         
-        let vector: number[] = Array.from(output.data as ArrayLike<number>);
+
+        let vector: number[] = Array.from(output as ArrayLike<number>);
 
         debugVector(vector, 'Raw embedding');
         

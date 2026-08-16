@@ -57,9 +57,9 @@ export async function getAllWikiPages() {
   const filteredData = data.pages.list.filter((page:any) => 
     page.path.includes("asociatie/interes-general") || 
     page.path.includes("asociatie/documente-oficiale") ||
-    page.path.includes("evenimente/") || 
-    page.path.includes("departamente/")
-)
+    page.path.includes("evenimente/") 
+    // page.path.includes("departamente/")
+  )
 
   return filteredData
 }

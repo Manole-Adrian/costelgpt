@@ -1,5 +1,5 @@
-const DEFAULT_CHUNK_SIZE = 800;
-const DEFAULT_OVERLAP = 120;
+const DEFAULT_CHUNK_SIZE = 2000;
+const DEFAULT_OVERLAP = 512;
 
 /**
  * Breaks text into the largest pieces that still fit in `size`, preferring

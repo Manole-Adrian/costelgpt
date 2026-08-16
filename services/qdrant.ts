@@ -60,7 +60,7 @@ export async function ensureCollection() {
         vectors: {
           [DENSE_VECTOR_NAME]: {
             size: VECTOR_DIMENSION,
-            distance: 'Cosine'
+            distance: 'Dot'
           }
         },
         sparse_vectors: {

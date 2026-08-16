@@ -51,9 +51,9 @@ type SettingsConfig = {
 const settings : SettingsConfig = {
     rag: {
         embeddingsModel: "Xenova/paraphrase-multilingual-MiniLM-L12-v2",
-        vectorDimensions: 384,
+        vectorDimensions: 768,
         sourcesLimit: 5,
-        denseScoreThreshold: 0.5,
+        denseScoreThreshold: 0.7,
         sparseScoreRatio: 0.6,
         denseHnswEf: 256,
         maxContentLength: 6000
