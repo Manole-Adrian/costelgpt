@@ -124,7 +124,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       const text: any = result.payload?.text || "No text content available";
       const sourceText = `[Source ${index + 1} - Score: ${result.score.toFixed(3)}]\n${text}`;
       
-      if (context.length + sourceText.length > maxContextLength) {
+      if (context.length + sourceText.length > settings.rag.maxContentLength) {
         console.log(`⚠️ Stopping at source ${index + 1} due to context limit`);
         break;
       }

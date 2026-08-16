@@ -28,6 +28,10 @@ type SettingsConfig = {
          * Size of the dense candidate list for nearest-neighbour search during dense search
          */
         denseHnswEf: number,
+        /**
+         * Max length in characters of retrieved context
+         */
+        maxContentLength: number
     },
     /**
      * Configration settings for the Request Rate Limiter
@@ -52,6 +56,7 @@ const settings : SettingsConfig = {
         denseScoreThreshold: 0.5,
         sparseScoreRatio: 0.6,
         denseHnswEf: 256,
+        maxContentLength: 6000
     },
     limiter: {
         windowMs: 600_000,
