@@ -150,7 +150,7 @@ async function ingest() {
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);
     
-    let content = await getPageContent(page.path, page.locale || "en", page.id);
+    let content = await getPageContent(page.id);
     
     if (!content) {
       console.log(`   ⚠️ No content, skipping`);

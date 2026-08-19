@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import { environment } from "../utils/env.js";
+import { ALLOWED_WIKI_INGESTION_PATHS } from "./constants.ts";
 
 const API_URL = environment.wikiUrl!;
 const TOKEN = environment.wikiJSToken!;
@@ -55,16 +56,14 @@ export async function getAllWikiPages() {
   const data = await fetchGraphQL(query);
   if (!data) return [];
   const filteredData = data.pages.list.filter((page:any) => 
-    page.path.includes("asociatie/interes-general") || 
-    page.path.includes("asociatie/documente-oficiale") ||
-    page.path.includes("evenimente/") || 
-    page.path.includes("departamente/")
+    ALLOWED_WIKI_INGESTION_PATHS.some(allowedPath => page.path.includes(allowedPath))
+    
 )
 
   return filteredData
 }
 
-export async function getPageContent(path:string, locale:string, id:string) {
+export async function getPageContent(id:string) {
   const query = `
     query SinglePage($intId: Int!) {
       pages {

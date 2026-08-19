@@ -1,16 +1,16 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { environment } from '../utils/env.js';
 import settings from '../config/settings.ts';
+import { COLLECTION_NAME, DENSE_VECTOR_MODIFIER, DENSE_VECTOR_NAME, SPARSE_VECTOR_MODIFIER, SPARSE_VECTOR_NAME } from './constants.ts';
 
 const client = new QdrantClient({
     url: environment.qdrantClusterEndpoint!,
     apiKey: environment.qdrantApiKey!,
 });
 
-const COLLECTION_NAME = 'wiki';
+
 const VECTOR_DIMENSION = settings.rag.vectorDimensions; // this MUST match embeddings model
-const DENSE_VECTOR_NAME = 'dense';
-const SPARSE_VECTOR_NAME = 'sparse';
+
 
 // Deleting a page's old chunks filters on these fields, and Qdrant refuses to
 // filter on a payload field that has no index.
@@ -60,12 +60,12 @@ export async function ensureCollection() {
         vectors: {
           [DENSE_VECTOR_NAME]: {
             size: VECTOR_DIMENSION,
-            distance: 'Cosine'
+            distance: DENSE_VECTOR_MODIFIER
           }
         },
         sparse_vectors: {
           [SPARSE_VECTOR_NAME]: {
-            modifier: 'idf'
+            modifier: SPARSE_VECTOR_MODIFIER
           }
         },
         optimizers_config: {
