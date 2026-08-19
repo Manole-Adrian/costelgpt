@@ -38,23 +38,27 @@ export async function ragQuery(question: string, tone: string, options = {}) {
     // 1. Generate query embedding
     const queryVector = await embedText(question);
     
-    // 2. Search Qdrant with filters
-    const denseSearchResults = await qdrant.query("wiki", {
-      query: queryVector,
-      using: "dense",
+    console.log('Sparse search');
+    const sparseSearchResults = await qdrant.query("wiki", {
+      query: createSparseVector(question),
+      using: "sparse",
       limit: limit * 2,
       with_payload: true,
       with_vector: false,
-      score_threshold: denseScoreThreshold,
       params: {
-        hnsw_ef: settings.rag.denseHnswEf
+        indexed_only: true
       }
     });
+
+    // Anchor the cutoff to this query's best hit instead of a fixed number.
+    const topSparseScore = sparseSearchResults.points
+      .reduce((best, point) => Math.max(best, point.score), 0);
+    const sparseCutoff = topSparseScore * sparseScoreRatio;
 
     // The score rule is passed in because dense and sparse scores live on
     // different scales and cannot share a single cutoff.
     const validateResults = (
-      results: typeof denseSearchResults.points,
+      results: typeof sparseSearchResults.points,
       keepScore: (score: number) => boolean
     ) => results
       .filter(r => {
@@ -64,36 +68,34 @@ export async function ragQuery(question: string, tone: string, options = {}) {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
 
-    let filteredResults = validateResults(
-      denseSearchResults.points,
-      score => score >= denseScoreThreshold
-    );
-    console.log(`📊 Dense search found ${denseSearchResults.points.length} potential matches`);
-
-    if (filteredResults.length === 0) {
-      console.log('🔁 Dense search was not good enough; trying sparse search');
-      const sparseSearchResults = await qdrant.query("wiki", {
-        query: createSparseVector(question),
-        using: "sparse",
-        limit: limit * 2,
-        with_payload: true,
-        with_vector: false,
-        params: {
-          indexed_only: true
-        }
-      });
-
-      // Anchor the cutoff to this query's best hit instead of a fixed number.
-      const topSparseScore = sparseSearchResults.points
-        .reduce((best, point) => Math.max(best, point.score), 0);
-      const sparseCutoff = topSparseScore * sparseScoreRatio;
-
-      filteredResults = validateResults(
+      let filteredResults = validateResults(
         sparseSearchResults.points,
         score => score >= sparseCutoff
       );
       console.log(`📊 Sparse search found ${sparseSearchResults.points.length} potential matches`);
       console.log(`   Top sparse score ${topSparseScore.toFixed(3)}, keeping ≥ ${sparseCutoff.toFixed(3)}`);
+    // DENSE SEARCH
+    
+
+    if (filteredResults.length === 0) {
+      // 2. Search Qdrant with filters
+      const denseSearchResults = await qdrant.query("wiki", {
+        query: queryVector,
+        using: "dense",
+        limit: limit * 2,
+        with_payload: true,
+        with_vector: false,
+        score_threshold: denseScoreThreshold,
+        params: {
+          hnsw_ef: settings.rag.denseHnswEf
+        }
+      });
+
+      filteredResults = validateResults(
+        denseSearchResults.points,
+        score => score >= denseScoreThreshold
+      );
+      console.log(`📊 Dense search found ${denseSearchResults.points.length} potential matches`);
     }
 
     if (filteredResults.length === 0) {
