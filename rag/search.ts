@@ -5,8 +5,6 @@ import { client as qdrant } from "../services/qdrant.js";
 import { environment } from "../utils/env.js";
 import costelGptTones from "./tones.js"
 import type { GenAiModel } from "../types/llm.js";
-import googleGenAiModel from "./llm/googleGenAiModel.js";
-import ollamaGenAiModel from "./llm/ollamaGenAiModel.js";
 import settings from "../config/settings.ts";
 import { COLLECTION_NAME, DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME } from "../services/constants.ts";
 import { getPrompt } from "./constants.ts";
