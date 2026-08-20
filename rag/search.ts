@@ -2,7 +2,7 @@ import "dotenv/config";
 import { embedText } from "../services/embeddings.js";
 import { createSparseVector } from "../services/sparse.js";
 import { client as qdrant } from "../services/qdrant.js";
-import { environment } from "../utils/env.js";
+import { environment } from "../config/env.ts";
 import costelGptTones from "./tones.js"
 import type { GenAiModel } from "../types/llm.js";
 import settings from "../config/settings.ts";

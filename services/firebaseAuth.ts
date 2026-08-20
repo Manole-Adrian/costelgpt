@@ -1,6 +1,6 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { environment } from '../utils/env.js';
+import { environment } from '../config/env.ts';
 import { ALLOWED_EMAIL_DOMAIN } from './constants.ts';
 
 // Cloud Functions provides credentials ambiently; locally the project id is

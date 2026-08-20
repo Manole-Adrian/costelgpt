@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { environment } from "../utils/env.js";
+import { environment } from "../config/env.ts";
 import { ALLOWED_WIKI_INGESTION_PATHS } from "./constants.ts";
 
 const API_URL = environment.wikiUrl!;

@@ -1,6 +1,6 @@
 import express from 'express';
 import getPrompt from '../controllers/controller.js'
-import { environment } from '../utils/env.js';
+import { environment } from '../config/env.ts';
 import { isAllowedUser, verifyRequestToken } from '../services/firebaseAuth.js';
 
 const costelRoutes = express.Router();
