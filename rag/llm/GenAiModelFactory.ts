@@ -20,6 +20,9 @@ type GenAiModelOptions = {
     temperature: number | undefined
 }
 
+/**
+ * Factory for LLM models. Use this to initialize LLM models, do not create them directly!!
+ */
 export default class GenAiModelFactory {
     getModel(modelProvider: string, model: string, options: GenAiModelOptions): GenAiModel {
         console.log(`Trying ${modelProvider} - ${model}`)
