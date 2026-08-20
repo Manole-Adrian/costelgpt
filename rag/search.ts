@@ -15,7 +15,7 @@ const llmFactory = new GenAiModelFactory();
 let model: GenAiModel
 try {
   model = llmFactory.getModel(settings.llm.provider, settings.llm.model, {
-    apiKey: environment.geminiApiKey,
+    apiKey: environment.llmApiKey,
     maxOutputTokens: settings.llm.maxOutputTokens,
     temperature: settings.llm.temperature
   })

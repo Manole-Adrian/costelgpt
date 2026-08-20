@@ -14,9 +14,9 @@ type EnvironmentConfig = {
      */
     wikiJSToken: string | undefined,
     /**
-     * When using Google AI Studio models, this is the required API key
+     * When using non-local models, this is the required API key
      */
-    geminiApiKey: string | undefined,
+    llmApiKey: string | undefined,
     /**
      * @deprecated
      * When using a local Qdrant instance, put the URL here
@@ -39,10 +39,6 @@ type EnvironmentConfig = {
      */
     port: string,
     /**
-     * LLM model the application will use. Either 'ollama' or 'google'
-     */
-    genModel: string,
-    /**
      * Firebase Project ID to be used for checking token validity for auth.
      */
     firebaseProjectId: string,
@@ -55,13 +51,12 @@ type EnvironmentConfig = {
 export const environment : EnvironmentConfig = {
     wikiUrl: process.env.WIKI_URL || "https://wiki.eestec.ro/graphql",
     wikiJSToken: process.env.WIKIJSTOKEN,
-    geminiApiKey: process.env.GEMINI_API_KEY,
+    llmApiKey: process.env.LLM_API_KEY,
     qdrantUrl: process.env.QDRANT_URL,
     wikiBaseUrl: process.env.WIKI_BASE_URL || "https://wiki.eestec.ro/",
     qdrantApiKey: process.env.QDRANT_API_KEY,
     qdrantClusterEndpoint: process.env.QDRANT_CLUSTER_ENDPOINT,
     port: process.env.BACKEND_PORT || "3000",
-    genModel: process.env.GEN_MODEL || 'google',
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID || 'costel-676d9',
     authDevBypass: process.env.AUTH_DEV_BYPASS === 'true',
 }

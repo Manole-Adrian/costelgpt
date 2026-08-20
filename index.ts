@@ -38,7 +38,6 @@ app.use('/api/v1', costelRoutes)
 if (!process.env.FUNCTION_TARGET) {
     app.listen(PORT, () => {
         console.log(`CostelGPT running on port ${PORT}`);
-        console.log(`CostelGPT using ${environment.genModel}`);
     });
 }
 
