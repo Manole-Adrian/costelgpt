@@ -1,22 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
-import type { GenAiModel, LlmResponse } from "../../types/llm.js";
+import { type LlmResponse, GenAiModel } from "../../types/llm.js";
 
-export default class googleGenAiModel implements GenAiModel {
+type GoogleGenAiParams = {
+    apiKey: string,
+    temperature: number,
+    maxOutputTokens: number
+}
+
+export default class googleGenAiModel extends GenAiModel {
     private ai;
-    private modelName;
     private temperature;
     private maxOutputTokens;
     
-    constructor(apiKey: string) {
-        this.ai = new GoogleGenAI({ apiKey: apiKey!})
-        this.modelName = "gemini-3.5-flash-lite"
-        this.temperature = 0.1
-        this.maxOutputTokens = 4096
+    constructor(model:string, params: GoogleGenAiParams) {
+        super(model)
+        this.ai = new GoogleGenAI({ apiKey: params.apiKey!})
+        this.temperature = params.temperature
+        this.maxOutputTokens = params.maxOutputTokens
     }
 
     async generateResponse(prompt: string): Promise<LlmResponse> {
         const result = await this.ai.models.generateContent({
-            model: this.modelName,
+            model: this.model,
             contents: prompt,
             config: {
                 temperature: this.temperature,

@@ -45,6 +45,27 @@ type SettingsConfig = {
          * Maximum number of messages allowed during the limiter time window
          */
         messagesCount: number,
+    },
+    /**
+     * Configuration settings for the LLM service
+     */
+    llm: {
+        /**
+         * Selected AI provider
+         */
+        provider: string,
+        /**
+         * Selected model
+         */
+        model: string,
+        /**
+         * Temperature param, affects model randomness. Required by Google models
+         */
+        temperature: number | undefined,
+        /**
+         * Maximum Output Tokens. Required by Google models
+         */
+        maxOutputTokens: number | undefined,
     }
 }
 
@@ -61,6 +82,12 @@ const settings : SettingsConfig = {
     limiter: {
         windowMs: 600_000,
         messagesCount: 40
+    },
+    llm: {
+       provider: 'google',
+       model: 'gemini-3.5-flash-lite',
+       temperature: 1,
+       maxOutputTokens: 4096,
     }
 }
 

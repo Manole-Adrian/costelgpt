@@ -10,18 +10,20 @@ import ollamaGenAiModel from "./llm/ollamaGenAiModel.js";
 import settings from "../config/settings.ts";
 import { COLLECTION_NAME, DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME } from "../services/constants.ts";
 import { getPrompt } from "./constants.ts";
+import GenAiModelFactory from "./llm/GenAiModelFactory.ts";
 
 // Initialize with error handling
-let llmModel: GenAiModel;
+const llmFactory = new GenAiModelFactory();
+let model: GenAiModel
 try {
-  if(environment.genModel === 'google') {
-    llmModel = new googleGenAiModel(environment.geminiApiKey!)
-  } else if (environment.genModel === 'ollama') {
-    llmModel = new ollamaGenAiModel()
-  }
-  console.log("✅ Gemini client initialized");
+  model = llmFactory.getModel(settings.llm.provider, settings.llm.model, {
+    apiKey: environment.geminiApiKey,
+    maxOutputTokens: settings.llm.maxOutputTokens,
+    temperature: settings.llm.temperature
+  })
+  console.log("LLM Model initialized");
 } catch (error: any) {
-  console.error("❌ Failed to initialize Gemini:", error.message);
+  console.error("Failed to initialize model:", error.message);
   process.exit(1);
 }
 
@@ -169,7 +171,7 @@ export async function ragQuery(question: string, tone: string, options = {}) {
     const prompt = getPrompt(context,tonePrompt,question);
 
     // 5. Generate answer using new Gemini SDK
-    const response = await llmModel.generateResponse(prompt);
+    const response = await model.generateResponse(prompt);
 
     const answer = response.text;
     if(!filteredResults[0]) {
