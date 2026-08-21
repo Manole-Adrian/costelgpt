@@ -69,3 +69,4 @@ package-lock.json
 *.env*
 *.js
 *.js.map
+*.log

@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { getAllWikiPages, getPageContent } from "./services/wikiGraphQL.ts";
-import { chunkText } from "./utils/chunker.ts";
+import { getAllWikiPages, getPageContent } from "./services/wikiGraphQL.js";
+import { chunkText } from "./utils/chunker.js";
 import { embedText } from "./services/embeddings.js";
 import { ensureCollection, client as qdrant } from "./services/qdrant.js";
 import { createSparseVector } from "./services/sparse.js";

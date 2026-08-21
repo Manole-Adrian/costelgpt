@@ -1,7 +1,7 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { environment } from '../config/env.ts';
-import settings from '../config/settings.ts';
-import { COLLECTION_NAME, DENSE_VECTOR_MODIFIER, DENSE_VECTOR_NAME, SPARSE_VECTOR_MODIFIER, SPARSE_VECTOR_NAME } from './constants.ts';
+import { environment } from '../config/env.js';
+import settings from '../config/settings.js';
+import { COLLECTION_NAME, DENSE_VECTOR_MODIFIER, DENSE_VECTOR_NAME, SPARSE_VECTOR_MODIFIER, SPARSE_VECTOR_NAME } from './constants.js';
 
 const client = new QdrantClient({
     url: environment.qdrantClusterEndpoint!,

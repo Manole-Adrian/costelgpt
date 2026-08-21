@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import costelRoutes from './routes/routes.js';
 import { rateLimit } from 'express-rate-limit';
-import { environment } from './config/env.ts';
+import { environment } from './config/env.js';
 const app = express();
 const PORT = environment.port;
 const limiter = rateLimit({

@@ -2,13 +2,13 @@ import "dotenv/config";
 import { embedText } from "../services/embeddings.js";
 import { createSparseVector } from "../services/sparse.js";
 import { client as qdrant } from "../services/qdrant.js";
-import { environment } from "../config/env.ts";
+import { environment } from "../config/env.js";
 import costelGptTones from "./tones.js"
 import type { GenAiModel } from "../types/llm.js";
-import settings from "../config/settings.ts";
-import { COLLECTION_NAME, DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME } from "../services/constants.ts";
-import { getPrompt } from "./constants.ts";
-import GenAiModelFactory from "./llm/GenAiModelFactory.ts";
+import settings from "../config/settings.js";
+import { COLLECTION_NAME, DENSE_VECTOR_NAME, SPARSE_VECTOR_NAME } from "../services/constants.js";
+import { getPrompt } from "./constants.js";
+import GenAiModelFactory from "./llm/GenAiModelFactory.js";
 
 // Initialize with error handling
 const llmFactory = new GenAiModelFactory();

@@ -1,7 +1,7 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import { environment } from '../config/env.ts';
-import { ALLOWED_EMAIL_DOMAIN } from './constants.ts';
+import { environment } from '../config/env.js';
+import { ALLOWED_EMAIL_DOMAIN } from './constants.js';
 
 // Cloud Functions provides credentials ambiently; locally the project id is
 // all verifyIdToken needs, since it validates against Google's public keys.

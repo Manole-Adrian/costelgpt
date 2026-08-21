@@ -1,5 +1,5 @@
 import { pipeline } from '@xenova/transformers';
-import settings from '../config/settings.ts';
+import settings from '../config/settings.js';
 
 let localEmbedder: any = null;
 const TARGET_DIMENSIONS = settings.rag.vectorDimensions;

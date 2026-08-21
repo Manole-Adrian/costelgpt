@@ -1,6 +1,6 @@
-import type { GenAiModel } from "../../types/llm.ts"
-import googleGenAiModel from "./googleGenAiModel.ts"
-import ollamaGenAiModel from "./ollamaGenAiModel.ts"
+import type { GenAiModel } from "../../types/llm.js"
+import googleGenAiModel from "./googleGenAiModel.js"
+import ollamaGenAiModel from "./ollamaGenAiModel.js"
 
 type GenAiModelOptions = {
     /**
