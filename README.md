@@ -39,6 +39,12 @@ In cazul modificarii modelului de generat embeddings, daca embeddingurile genera
 
 Momentan sunt ingerate doar paginile din `interes-general`, `departamente` si `evenimente`
 
+## Contributii
+
+Puteti contribui la acest repo, facand un alt branch din `master`, ideal numit dupa ceea ce faceti (exemplu: `fix/incorrect-sparse-score-calculation`, `feat/add-prompt-injection-security`).
+
+Dupa ce dati push la branchul vostru, puteti face un pull request (PR) in branchul de `master`, si asteptati un review. Odata aprobat, schimbarile voastre vor fi incluse in urmatorul release de CostelGPT!
+
 ## Research
 
 In timp ce lucram la munca (si prin extensie, la un sistem similar cu acesta), a trebuit sa fac niste research. Mie mi s-au parut utile acestea, poate vi se par si voua:
