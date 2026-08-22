@@ -67,3 +67,6 @@ package-lock.json
 /dist/
 .env
 *.env*
+*.js
+*.js.map
+*.log

@@ -1,13 +1,38 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { environment } from '../utils/env.js';
+import { environment } from '../config/env.js';
+import settings from '../config/settings.js';
+import { COLLECTION_NAME, DENSE_VECTOR_MODIFIER, DENSE_VECTOR_NAME, SPARSE_VECTOR_MODIFIER, SPARSE_VECTOR_NAME } from './constants.js';
 
 const client = new QdrantClient({
     url: environment.qdrantClusterEndpoint!,
     apiKey: environment.qdrantApiKey!,
 });
 
-const COLLECTION_NAME = 'wiki';
-const VECTOR_DIMENSION = 384; // this MUST match embeddings model
+
+const VECTOR_DIMENSION = settings.rag.vectorDimensions; // this MUST match embeddings model
+
+
+// Deleting a page's old chunks filters on these fields, and Qdrant refuses to
+// filter on a payload field that has no index.
+const PAYLOAD_INDEXES = [
+  { field: 'pageId', schema: 'integer' },
+  { field: 'filePath', schema: 'keyword' },
+] as const;
+
+async function ensurePayloadIndexes() {
+  for (const { field, schema } of PAYLOAD_INDEXES) {
+    try {
+      await client.createPayloadIndex(COLLECTION_NAME, {
+        field_name: field,
+        field_schema: schema,
+        wait: true
+      });
+    } catch (error: any) {
+      const detail = error.data?.status?.error ?? error.message;
+      console.error(`Failed to create payload index for '${field}':`, detail);
+    }
+  }
+}
 
 export async function ensureCollection() {
   try {
@@ -16,10 +41,14 @@ export async function ensureCollection() {
     
     if (collectionExists) {
       const info = await client.getCollection(COLLECTION_NAME);
-      const currentDim = info.config.params.vectors!.size;
+      const vectors = info.config.params.vectors;
+      const currentDim = vectors && typeof vectors === 'object' && 'size' in vectors
+        ? vectors.size
+        : vectors?.[DENSE_VECTOR_NAME]?.size;
+      const hasExpectedSparseVector = Boolean(info.config.params.sparse_vectors?.[SPARSE_VECTOR_NAME]);
       
-      if (currentDim !== VECTOR_DIMENSION) {
-        console.log(`Deleting old collection (has ${currentDim} dimensions, need ${VECTOR_DIMENSION})...`);
+      if (currentDim !== VECTOR_DIMENSION || !hasExpectedSparseVector) {
+        console.log('Deleting old collection because its vector schema does not support dense and sparse search...');
         await client.deleteCollection(COLLECTION_NAME);
         collectionExists = false;
       }
@@ -29,8 +58,15 @@ export async function ensureCollection() {
       console.log(`Creating new collection with ${VECTOR_DIMENSION} dimensions...`);
       await client.createCollection(COLLECTION_NAME, {
         vectors: {
-          size: VECTOR_DIMENSION,
-          distance: 'Cosine'
+          [DENSE_VECTOR_NAME]: {
+            size: VECTOR_DIMENSION,
+            distance: DENSE_VECTOR_MODIFIER
+          }
+        },
+        sparse_vectors: {
+          [SPARSE_VECTOR_NAME]: {
+            modifier: SPARSE_VECTOR_MODIFIER
+          }
         },
         optimizers_config: {
           default_segment_number: 2
@@ -40,7 +76,9 @@ export async function ensureCollection() {
     } else {
       console.log(`Collection '${COLLECTION_NAME}' already exists with correct dimensions`);
     }
-    
+
+    await ensurePayloadIndexes();
+
     return true;
   } catch (error) {
     console.error('Failed to ensure collection:', error);

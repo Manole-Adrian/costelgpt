@@ -18,13 +18,16 @@ In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia 
 | ----------------------- | :---------: | ---------------------------------------- | -------------------------------- |
 | WIKI_URL                |             | URL-ul GraphQL                           | `https://wiki.eestec.ro/graphql` |
 | WIKIJSTOKEN             |     \*      | wiki API token                           |                                  |
-| GEMINI_API_KEY          |             | API key gemini                           |                                  |
+| LLM_API_KEY             |             | LLM API key                              |                                  |
 | QDRANT_URL              |             | Pentru rulat qdrant local, URL-ul        |                                  |
 | WIKI_BASE_URL           |             | URL-ul wiki-ului                         | `https://wiki.eestec.ro/`        |
 | QDRANT_API_KEY          |             | Pentru rulat qdrant in cloud, API key    |                                  |
 | QDRANT_CLUSTER_ENDPOINT |             | Pentru rulat qdrant in cloud, endpointul |                                  |
 | BACKEND_PORT            |             | Portul serverului                        | `3000`                           |
-| GEN_MODEL               |             | Ce model sa foloseasca LLM-ul            | `google`                         |
+| AUTH_DEV_BYPASS         |             | Oprirea autentificarii pt development    | `false`                          |
+| FIREBASE_PROJECT_ID     |             | ID-ul proiectului pe firebase            | `costel-676d9`                   |
+
+In path-ul `/config/settings.ts` puteti gasi majoritatea celorlalte campuri care pot fi editate. Orice alt 'magic string' sau 'magic number' care totusi ar putea fi modificat in viitor ar trebui pus aici, si nu in varful filei.
 
 ## Ingerare
 
@@ -35,3 +38,19 @@ Datorita versiunii specifice de wiki folosita de EESTEC, unele pagini nu pot fi 
 In cazul modificarii modelului de generat embeddings, daca embeddingurile generate au un token size diferit fata de cel anterior, colectia din qdrant este stearsa. In rest, stergerea colectiei se face manual.
 
 Momentan sunt ingerate doar paginile din `interes-general`, `departamente` si `evenimente`
+
+## Contributii
+
+Puteti contribui la acest repo, facand un alt branch din `master`, ideal numit dupa ceea ce faceti (exemplu: `fix/incorrect-sparse-score-calculation`, `feat/add-prompt-injection-security`).
+
+Dupa ce dati push la branchul vostru, puteti face un pull request (PR) in branchul de `master`, si asteptati un review. Odata aprobat, schimbarile voastre vor fi incluse in urmatorul release de CostelGPT!
+
+## Research
+
+In timp ce lucram la munca (si prin extensie, la un sistem similar cu acesta), a trebuit sa fac niste research. Mie mi s-au parut utile acestea, poate vi se par si voua:
+
+https://arxiv.org/pdf/2407.01219
+https://www.researchgate.net/publication/389140490_A_Research_of_Challenges_and_Solutions_in_Retrieval_Augmented_Generation_RAG_Systems
+https://arxiv.org/pdf/2201.10005
+
+Daca sunt orice fel de curiozitati sau intrebari, nu ezitati sa ma contactati prin email (adrian.manole@eestec.ro) sau alte metode la care aveti acces!

@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import costelRoutes from './routes/routes.js';
 import { rateLimit } from 'express-rate-limit';
-import { environment } from './utils/env.js';
+import { environment } from './config/env.js';
 const app = express();
 const PORT = environment.port;
 const limiter = rateLimit({
@@ -19,7 +19,9 @@ const allowedOrigins = [`http://localhost:3000`, 'https://costel.eestec.ro', 'ht
 app.use(helmet())
 app.use(cors({
     origin: function (origin, callback) {
-        if(allowedOrigins.indexOf(origin!) !== -1) {
+        // No Origin header means the request is not cross-origin at all
+        // (curl, server-to-server, health checks), so there is nothing to block.
+        if(!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true)
         } else {
             callback(new Error('Not allowed by CORS'))
@@ -33,7 +35,10 @@ app.use(limiter);
 
 app.use('/api/v1', costelRoutes)
 
-app.listen(PORT, () => {
-  console.log(`🚀 RAG API running on port ${PORT}`);
-  console.log(`🤖 LLM using ${environment.genModel}`);
-});
+if (!process.env.FUNCTION_TARGET) {
+    app.listen(PORT, () => {
+        console.log(`CostelGPT running on port ${PORT}`);
+    });
+}
+
+export default app;

@@ -1,23 +1,33 @@
 import express from 'express';
 import getPrompt from '../controllers/controller.js'
-import { jwtDecode } from 'jwt-decode';
+import { environment } from '../config/env.js';
+import { isAllowedUser, verifyRequestToken } from '../services/firebaseAuth.js';
 
 const costelRoutes = express.Router();
 
 costelRoutes.get('/prompt', async (req, res) => {
     const { q: query, tone: tone } = req.query;
 
-    
-
     const authToken = req.header("Authorization");
     if(!authToken) {
-        res.status(401).json({error:"401 Unauthorized"})
+        return res.status(401).json({error:"401 Unauthorized"})
     }
-    const decodedJwt:any = jwtDecode(authToken!);
-    if (!decodedJwt.firebase.identities.email.includes("@eestec.ro") && decodedJwt.firebase.sign_in_provider != "google.com") {
-        return res.status(401).json({error: '401 Unauthorized'})
+
+    if (environment.authDevBypass) {
+        console.warn("⚠️ AUTH_DEV_BYPASS is on — accepting token without verification");
+    } else {
+        try {
+            const user = await verifyRequestToken(authToken);
+            if (!isAllowedUser(user)) {
+                console.warn(`🚫 Rejected ${user.email || user.uid}: not a verified @eestec.ro account`);
+                return res.status(403).json({error: '403 Forbidden'})
+            }
+        } catch (error: any) {
+            console.warn("🚫 Token verification failed:", error.message);
+            return res.status(401).json({error: '401 Unauthorized'})
+        }
     }
-    
+
     if (!query) {
         return res.status(400).json({error: `Query parameter "q" is required`});
     }
@@ -25,9 +35,9 @@ costelRoutes.get('/prompt', async (req, res) => {
     if (!tone) {
         return res.status(400).json({error: `Query parameter "tone" is required`});
     }
-        
+    console.log("got request!")
     const result = await getPrompt((query as string), (tone as string))
-    res.json({
+    return res.json({
         ...result,
         timestamp: new Date().toISOString()
     });

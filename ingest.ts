@@ -3,6 +3,7 @@ import { getAllWikiPages, getPageContent } from "./services/wikiGraphQL.js";
 import { chunkText } from "./utils/chunker.js";
 import { embedText } from "./services/embeddings.js";
 import { ensureCollection, client as qdrant } from "./services/qdrant.js";
+import { createSparseVector } from "./services/sparse.js";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +11,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
+/**
+ * Removes every point previously ingested from one source before re-inserting
+ * it. Without this, chunks from a deleted or shortened page linger forever,
+ * because upsert only overwrites the ids it is given.
+ */
+async function deleteExistingPoints(key: string, value: string | number) {
+  try {
+    await qdrant.delete("wiki", {
+      wait: true,
+      filter: {
+        must: [{ key, match: { value } }]
+      }
+    });
+  } catch (error: any) {
+    const detail = error.data?.status?.error ?? error.message;
+    console.error(`   ⚠️ Failed to clear stale points for ${key}=${value}:`, detail);
+  }
+}
 
 function debugVector(vector:any[], chunkIndex: number) {
   if (chunkIndex === 0) {
@@ -50,7 +70,9 @@ async function ingestFromMarkdown(folderPath = "./sources") {
       
       const chunks = chunkText(content);
       console.log(`   ✂️ Split into ${chunks.length} chunks`);
-      
+
+      await deleteExistingPoints("filePath", filePath);
+
       for (let i = 0; i < chunks.length; i++) {
         try {
           console.log(`   🔧 Processing chunk ${i+1}/${chunks.length}...`);
@@ -61,7 +83,10 @@ async function ingestFromMarkdown(folderPath = "./sources") {
           
           const point = {
             id: pointId,
-            vector: vector,
+            vector: {
+              dense: vector,
+              sparse: createSparseVector(chunks[i]!)
+            },
             payload: {
               pageId: -1,
               title: title,
@@ -125,7 +150,7 @@ async function ingest() {
   for (const page of pages) {
     console.log(`\n📄 Processing: ${page.title} (ID: ${page.id})`);
     
-    let content = await getPageContent(page.path, page.locale || "en", page.id);
+    let content = await getPageContent(page.id);
     
     if (!content) {
       console.log(`   ⚠️ No content, skipping`);
@@ -134,6 +159,8 @@ async function ingest() {
 
     const chunks = chunkText(content);
     // console.log(`   ✂️ Split into ${chunks.length} chunks`);
+
+    await deleteExistingPoints("pageId", page.id);
 
     for (let i = 0; i < chunks.length; i++) {
       try {
@@ -152,7 +179,10 @@ async function ingest() {
         // Prepare the point
         const point = {
           id: pointId,
-          vector: vector,
+          vector: {
+            dense: vector,
+            sparse: createSparseVector(chunks[i]!)
+          },
           payload: {
             pageId: page.id,
             title: page.title,

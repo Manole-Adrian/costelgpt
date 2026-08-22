@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "rootDir": "../",
+    "baseUrl": "."
+  },
+  "compileOnSave": true,
+  "include": [
+    "src",                        // Include the functions source
+    "../index.ts",                // Include your main app file
+    "../routes/**/*",             // Include your routes
+    "../controllers/**/*"         // Include your controllers
+  ]
+}

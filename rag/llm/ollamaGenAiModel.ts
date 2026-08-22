@@ -1,15 +1,14 @@
 import ollama from 'ollama'
-import type { GenAiModel, LlmResponse } from '../../types/llm.js';
+import { type LlmResponse, GenAiModel } from '../../types/llm.js';
 
-export default class ollamaGenAiModel implements GenAiModel {
-    private modelName;
-    constructor() {
-        this.modelName = "llama3.1"
+export default class ollamaGenAiModel extends GenAiModel {
+    constructor(model: string) {
+        super(model)
     }
 
     async generateResponse(prompt: string): Promise<LlmResponse> {
         const response = await ollama.chat({
-        model: this.modelName,
+        model: this.model,
         messages: [{role: 'user', content: prompt}]
         });
 

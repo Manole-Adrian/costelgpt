@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
-import { environment } from "../utils/env.js";
+import { environment } from "../config/env.js";
+import { ALLOWED_WIKI_INGESTION_PATHS } from "./constants.js";
 
 const API_URL = environment.wikiUrl!;
 const TOKEN = environment.wikiJSToken!;
@@ -14,10 +15,25 @@ async function fetchGraphQL(query: string, variables = {}) {
     body: JSON.stringify({ query, variables }),
   });
 
-  const json:any = await res.json();
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    console.error(`GraphQL request failed: ${res.status} ${res.statusText}`);
+    if (body) console.error(body.slice(0, 500));
+    return null;
+  }
+
+  let json: any;
+  try {
+    json = await res.json();
+  } catch (error: any) {
+    console.error("GraphQL response was not valid JSON:", error.message);
+    return null;
+  }
+
   if (json.errors) {
     console.error("GraphQL errors:", json.errors);
-    console.error(json.errors[0].extensions.exception)
+    const exception = json.errors[0]?.extensions?.exception;
+    if (exception) console.error(exception);
     return null;
   }
   return json.data;
@@ -40,16 +56,14 @@ export async function getAllWikiPages() {
   const data = await fetchGraphQL(query);
   if (!data) return [];
   const filteredData = data.pages.list.filter((page:any) => 
-    page.path.includes("asociatie/interes-general") || 
-    page.path.includes("asociatie/documente-oficiale") ||
-    page.path.includes("evenimente/") || 
-    page.path.includes("departamente/")
+    ALLOWED_WIKI_INGESTION_PATHS.some(allowedPath => page.path.includes(allowedPath))
+    
 )
 
   return filteredData
 }
 
-export async function getPageContent(path:string, locale:string, id:string) {
+export async function getPageContent(id:string) {
   const query = `
     query SinglePage($intId: Int!) {
       pages {
