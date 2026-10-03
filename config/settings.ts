@@ -31,7 +31,15 @@ type SettingsConfig = {
         /**
          * Max length in characters of retrieved context
          */
-        maxContentLength: number
+        maxContentLength: number,
+        /**
+         * Whether to use local models or remote models for embeddings. If true, the embeddings model will be loaded from the local path specified in embeddingsModelPath. If false, the embeddings model will be loaded from the remote provider specified in embeddingsModel.
+         */
+        useLocalModels: boolean,
+        /**
+         * Path to the local embeddings model. This is only used if useLocalModels is true.
+         */
+        embeddingsModelPath: string
     },
     /**
      * Configration settings for the Request Rate Limiter
@@ -77,7 +85,9 @@ const settings : SettingsConfig = {
         denseScoreThreshold: 0.5,
         sparseScoreRatio: 0.6,
         denseHnswEf: 256,
-        maxContentLength: 6000
+        maxContentLength: 6000,
+        useLocalModels: true,
+        embeddingsModelPath: "../models/"
     },
     limiter: {
         windowMs: 600_000,

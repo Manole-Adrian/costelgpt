@@ -1,4 +1,4 @@
-import { pipeline } from '@xenova/transformers';
+import { env, pipeline } from '@xenova/transformers';
 import settings from '../config/settings.js';
 
 let localEmbedder: any = null;
@@ -38,7 +38,11 @@ function debugVector(vector: any[], label = 'Vector') {
 
 export async function embedText(text: string): Promise<number[]> {
     try {
-        
+        env.allowRemoteModels = !settings.rag.useLocalModels;
+        env.allowLocalModels = settings.rag.useLocalModels;
+
+        env.localModelPath = settings.rag.embeddingsModelPath;
+
         if (!localEmbedder) {
             localEmbedder = await pipeline('feature-extraction', settings.rag.embeddingsModel, {
                 quantized: true
