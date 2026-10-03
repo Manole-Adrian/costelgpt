@@ -19,6 +19,7 @@ In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia 
 | WIKI_URL                |             | URL-ul GraphQL                           | `https://wiki.eestec.ro/graphql` |
 | WIKIJSTOKEN             |     \*      | wiki API token                           |                                  |
 | LLM_API_KEY             |             | LLM API key                              |                                  |
+| HF_TOKEN                |             | Hugging Face read token for the embeddings model |                           |
 | QDRANT_URL              |             | Pentru rulat qdrant local, URL-ul        |                                  |
 | WIKI_BASE_URL           |             | URL-ul wiki-ului                         | `https://wiki.eestec.ro/`        |
 | QDRANT_API_KEY          |             | Pentru rulat qdrant in cloud, API key    |                                  |
@@ -28,6 +29,18 @@ In repo exista o fila `.example.env`, aceasta trebuie copiata, redenumind copia 
 | FIREBASE_PROJECT_ID     |             | ID-ul proiectului pe firebase            | `costel-676d9`                   |
 
 In path-ul `/config/settings.ts` puteti gasi majoritatea celorlalte campuri care pot fi editate. Orice alt 'magic string' sau 'magic number' care totusi ar putea fi modificat in viitor ar trebui pus aici, si nu in varful filei.
+
+## Cloud Functions embeddings
+
+Embeddings use the remote Hugging Face model. Create a Hugging Face read token with access to the model and set `HF_TOKEN` in your `.env` file. For local development, copy `.example.env` to the repository root as `.env`. For Firebase deployment, put the same `HF_TOKEN` entry in `functions/.env` as Firebase loads environment files from the Functions source directory:
+
+```sh
+cp .example.env .env
+# Add HF_TOKEN=your_hugging_face_read_token to functions/.env
+firebase deploy --only functions
+```
+
+Do not commit either `.env` file. Each warm function instance shares one model initialization across concurrent requests and caches downloaded model files under `/tmp`; the model is not downloaded for every request. A new instance may download the model once during its initialization.
 
 ## Ingerare
 

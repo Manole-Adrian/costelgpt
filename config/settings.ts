@@ -86,7 +86,7 @@ const settings : SettingsConfig = {
         sparseScoreRatio: 0.6,
         denseHnswEf: 256,
         maxContentLength: 6000,
-        useLocalModels: true,
+        useLocalModels: false,
         embeddingsModelPath: "../models/"
     },
     limiter: {

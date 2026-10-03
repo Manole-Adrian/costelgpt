@@ -1,7 +1,8 @@
 import { env, pipeline } from '@xenova/transformers';
 import settings from '../config/settings.js';
 
-let localEmbedder: any = null;
+let embedder: any = null;
+let embedderPromise: Promise<any> | null = null;
 const TARGET_DIMENSIONS = settings.rag.vectorDimensions;
 
 function validateEmbedding(vector:any[]) {
@@ -40,16 +41,26 @@ export async function embedText(text: string): Promise<number[]> {
     try {
         env.allowRemoteModels = !settings.rag.useLocalModels;
         env.allowLocalModels = settings.rag.useLocalModels;
-
+        env.cacheDir = '/tmp/transformers-cache';
         env.localModelPath = settings.rag.embeddingsModelPath;
 
-        if (!localEmbedder) {
-            localEmbedder = await pipeline('feature-extraction', settings.rag.embeddingsModel, {
-                quantized: true
-            });
+        if (!settings.rag.useLocalModels && !process.env.HF_TOKEN) {
+            throw new Error('HF_TOKEN is required to load the remote embedding model.');
+        }
+
+        if (!embedder) {
+            if (!embedderPromise) {
+                embedderPromise = pipeline('feature-extraction', settings.rag.embeddingsModel, {
+                    quantized: true
+                }).catch(error => {
+                    embedderPromise = null;
+                    throw error;
+                });
+            }
+            embedder = await embedderPromise;
         }
         
-        const output = await localEmbedder(text, { 
+        const output = await embedder(text, {
             pooling: 'mean', 
             normalize: true 
         });
